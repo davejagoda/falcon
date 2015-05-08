@@ -3,7 +3,7 @@
 import oauth2client.client
 import webbrowser
 
-OAUTH2_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly'
+OAUTH2_SCOPE = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRETS = 'client_secrets.json'
 
 flow = oauth2client.client.flow_from_clientsecrets(CLIENT_SECRETS, OAUTH2_SCOPE)
