@@ -33,10 +33,19 @@ def print_raw_result(result):
 def print_names_only(result):
     names = []
     for item in result:
-        try:
-            names.append(item['summary'])
-        except:
-            names.append('NO SUMMARY')
+        if 'start' in item:
+            startDict = item['start']
+        else:
+            startDict = item['originalStartTime']
+        if 'dateTime' in startDict:
+            dateTime = startDict['dateTime']
+        else:
+            dateTime = startDict['date']
+        if 'summary' in item:
+            summary = item['summary']
+        else:
+            summary = 'NO SUMMARY'
+        names.append(dateTime + summary)
     names.sort()
     for name in names:
         print(name.encode('utf8'))
