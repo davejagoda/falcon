@@ -23,7 +23,7 @@ def getTimeZoneOffSet():
     return('{}{:02d}:{:02d}'.format(sign,hh,mm))
 
 def get_calendar_service():
-    f = open('bearer_token_rw.json', 'r')
+    f = open('bearer_token.json', 'r')
     credentials = oauth2client.client.Credentials.new_from_json(f.read())
     f.close()
     http = httplib2.Http()
