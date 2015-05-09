@@ -67,11 +67,17 @@ if '__main__' == __name__:
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('name', help='name of the event')
+    parser.add_argument('--hours', help='how many hours from now to start the event')
     parser.add_argument('--start', help='start time of the event: CCYY-MM-DDTHH:MM:SS')
     parser.add_argument('--end', help='end time of the event: CCYY-MM-DDTHH:MM:SS')
     args = parser.parse_args()
     calendar_service = get_calendar_service()
-    if args.start:
-        print(make_event(calendar_service, args.name, args.start, args.end))
+    if args.hours:
+        startTime = (datetime.datetime.now() + datetime.timedelta(hours=int(args.hours))).replace(microsecond=0).isoformat()
+        print(startTime)
+        print(make_event(calendar_service, args.name, startTime))
     else:
-        print(make_event(calendar_service, args.name))
+        if args.start:
+            print(make_event(calendar_service, args.name, args.start, args.end))
+        else:
+            print(make_event(calendar_service, args.name))
