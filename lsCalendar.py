@@ -7,9 +7,8 @@ import apiclient.discovery
 import oauth2client.client
 
 def get_calendar_service(tokenFile):
-    f = open(tokenFile, 'r')
-    credentials = oauth2client.client.Credentials.new_from_json(f.read())
-    f.close()
+    with open(tokenFile, 'r') as f:
+        credentials = oauth2client.client.Credentials.new_from_json(f.read())
     http = httplib2.Http()
     credentials.authorize(http)
     return(apiclient.discovery.build('calendar', 'v3', http=http))
