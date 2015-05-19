@@ -3,7 +3,3 @@
 
 # Emacs
 *~
-
-# OAuth
-client_secrets.json
-bearer_token.json
