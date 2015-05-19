@@ -6,8 +6,8 @@ import httplib2
 import apiclient.discovery
 import oauth2client.client
 
-def get_calendar_service():
-    f = open('bearer_token.json', 'r')
+def get_calendar_service(tokenFile):
+    f = open(tokenFile, 'r')
     credentials = oauth2client.client.Credentials.new_from_json(f.read())
     f.close()
     http = httplib2.Http()
@@ -54,8 +54,9 @@ if '__main__' == __name__:
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('--raw', help='pretty print the raw output', action='store_true')
+    parser.add_argument('-t', '--tokenFile', action='store', required=True, help='file containing OAuth token in JSON format')
     args = parser.parse_args()
-    calendar_service = get_calendar_service()
+    calendar_service = get_calendar_service(args.tokenFile)
     result = get_raw_result(calendar_service)
     if (args.raw):
         print_raw_result(result)
