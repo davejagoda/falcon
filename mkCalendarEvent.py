@@ -64,8 +64,9 @@ def make_event(calendar_service, name, start=None, end=None):
 '''
 if '__main__' == __name__:
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('name', help='name of the event')
+    parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-t', '--tokenFile', action='store', required=True, help='file containing OAuth token in JSON format')
     parser.add_argument('--hours', help='how many hours from now to start the event')
     parser.add_argument('--start', help='start time of the event: CCYY-MM-DDTHH:MM:SS')
     parser.add_argument('--end', help='end time of the event: CCYY-MM-DDTHH:MM:SS')
