@@ -75,6 +75,4 @@ if '__main__' == __name__:
     else:
         endTime = startTime + datetime.timedelta(minutes=int(args.duration))
     if args.verbose: print('end time: {} type:{}'.format(endTime, type(endTime)))
-    if args.attendees:
-        if args.verbose: print(attendees_string_to_list_of_dictionaries(args.attendees))
     print(make_event(calendar_service, args.name, startTime, endTime, attendees=args.attendees, verbose=args.verbose))
