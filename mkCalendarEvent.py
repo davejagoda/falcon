@@ -29,16 +29,13 @@ def get_calendar_service(tokenFile):
     credentials.authorize(http)
     return(apiclient.discovery.build('calendar', 'v3', http=http))
 
-def make_event(calendar_service, name, start=None, end=None):
-    if None == start:
-        startTime = datetime.datetime.now()
-    else:
-        startTime = datetime.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
-    print(type(startTime))
-    if None == end:
-        endTime = startTime + datetime.timedelta(hours=1)
-    else:
-        endTime = datetime.datetime.strptime(end, '%Y-%m-%dT%H:%M:%S')
+def attendees_string_to_list_of_dictionaries(attendees):
+    list = []
+    for attendee in attendees.split(','):
+        list.append( { 'email': attendee } )
+    return(list)
+
+def make_event(calendar_service, name, start, end, attendees=None, verbose=False):
     event = {
         'summary': name,
         'start': {
@@ -48,38 +45,36 @@ def make_event(calendar_service, name, start=None, end=None):
             'dateTime': endTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet()
             }
         }
-    print(event)
+    if attendees:
+        event['attendees'] = attendees_string_to_list_of_dictionaries(attendees)
+    if verbose: print(event)
     result = calendar_service.events().insert(calendarId='primary', body=event).execute()
     return(result['id'])
-'''
-    result = []
-    page_token = None
-    while True:
-        events = calendar_service.events().list(calendarId='primary', pageToken=page_token).execute()
-        result.extend(events['items'])
-        page_token = events.get('nextPageToken')
-        if not page_token:
-            break
-    return(result)
-'''
+
 if '__main__' == __name__:
     parser = argparse.ArgumentParser()
     parser.add_argument('name', help='name of the event')
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('-t', '--tokenFile', action='store', required=True, help='file containing OAuth token in JSON format')
-    parser.add_argument('--hours', help='how many hours from now to start the event')
-    parser.add_argument('--start', help='start time of the event: CCYY-MM-DDTHH:MM:SS')
-    parser.add_argument('--end', help='end time of the event: CCYY-MM-DDTHH:MM:SS')
-    parser.add_argument('-t', '--tokenFile', action='store', required=True, help='file containing OAuth token in JSON format')
-
+    alpha = parser.add_mutually_exclusive_group(required=True)
+    alpha.add_argument('-s', '--start', help='start time of the event: CCYY-MM-DDTHH:MM:SS')
+    alpha.add_argument('-m', '--minutes', help='how many minutes from now to start the event')
+    omega = parser.add_mutually_exclusive_group()
+    omega.add_argument('-e', '--end', help='end time of the event: CCYY-MM-DDTHH:MM:SS')
+    omega.add_argument('-d', '--duration', default='30', help='duration of the event in minutes')
+    parser.add_argument('-a', '--attendees', help='comma separated list of additional attendee email addresses')
     args = parser.parse_args()
     calendar_service = get_calendar_service(args.tokenFile)
-    if args.hours:
-        startTime = (datetime.datetime.now() + datetime.timedelta(hours=int(args.hours))).replace(microsecond=0).isoformat()
-        print(startTime)
-        print(make_event(calendar_service, args.name, startTime))
+    if args.start:
+        startTime = datetime.datetime.strptime(args.start, '%Y-%m-%dT%H:%M:%S')
     else:
-        if args.start:
-            print(make_event(calendar_service, args.name, args.start, args.end))
-        else:
-            print(make_event(calendar_service, args.name))
+        startTime = datetime.datetime.now() + datetime.timedelta(minutes=int(args.minutes))
+    if args.verbose: print('start time: {} type:{}'.format(startTime, type(startTime)))
+    if args.end:
+        endTime = datetime.datetime.strptime(args.end, '%Y-%m-%dT%H:%M:%S')
+    else:
+        endTime = startTime + datetime.timedelta(minutes=int(args.duration))
+    if args.verbose: print('end time: {} type:{}'.format(endTime, type(endTime)))
+    if args.attendees:
+        if args.verbose: print(attendees_string_to_list_of_dictionaries(args.attendees))
+    print(make_event(calendar_service, args.name, startTime, endTime, attendees=args.attendees, verbose=args.verbose))
