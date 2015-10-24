@@ -35,7 +35,7 @@ def attendees_string_to_list_of_dictionaries(attendees):
         list.append( { 'email': attendee } )
     return(list)
 
-def make_event(calendar_service, name, start, end, attendees=None, verbose=False):
+def make_event(calendar_service, name, start, end, attendees=None, notifications=False, verbose=False):
     event = {
         'summary': name,
         'start': {
@@ -47,6 +47,8 @@ def make_event(calendar_service, name, start, end, attendees=None, verbose=False
         }
     if attendees:
         event['attendees'] = attendees_string_to_list_of_dictionaries(attendees)
+    if notifications:
+        event['reminders'] = {'useDefault': False, 'overrides': [{'method': 'popup', 'minutes': 10}]}
     if verbose: print(event)
     result = calendar_service.events().insert(calendarId='primary', body=event).execute()
     return(result['id'])
@@ -63,6 +65,7 @@ if '__main__' == __name__:
     omega.add_argument('-e', '--end', help='end time of the event: CCYY-MM-DDTHH:MM:SS')
     omega.add_argument('-d', '--duration', default='30', help='duration of the event in minutes')
     parser.add_argument('-a', '--attendees', help='comma separated list of additional attendee email addresses')
+    parser.add_argument('-n', '--notifications', action='store_true', help='send a notification 10 minutes before the event')
     args = parser.parse_args()
     calendar_service = get_calendar_service(args.tokenFile)
     if args.start:
@@ -75,4 +78,4 @@ if '__main__' == __name__:
     else:
         endTime = startTime + datetime.timedelta(minutes=int(args.duration))
     if args.verbose: print('end time: {} type:{}'.format(endTime, type(endTime)))
-    print(make_event(calendar_service, args.name, startTime, endTime, attendees=args.attendees, verbose=args.verbose))
+    print(make_event(calendar_service, args.name, startTime, endTime, attendees=args.attendees, notifications=args.notifications, verbose=args.verbose))
