@@ -13,7 +13,7 @@ def get_calendar_service(tokenFile):
     credentials.authorize(http)
     return(apiclient.discovery.build('calendar', 'v3', http=http))
 
-def get_raw_result(calendar_service):
+def get_raw_result(calendar_service, verbose=False):
     result = []
     page_token = None
     while True:
@@ -22,6 +22,8 @@ def get_raw_result(calendar_service):
         page_token = events.get('nextPageToken')
         if not page_token:
             break
+        else:
+            if verbose: print('got a page_token')
     return(result)
 
 def print_raw_result(result):
@@ -56,7 +58,7 @@ if '__main__' == __name__:
     parser.add_argument('-t', '--tokenFile', action='store', required=True, help='file containing OAuth token in JSON format')
     args = parser.parse_args()
     calendar_service = get_calendar_service(args.tokenFile)
-    result = get_raw_result(calendar_service)
+    result = get_raw_result(calendar_service, verbose=args.verbose)
     if (args.raw):
         print_raw_result(result)
     else:
