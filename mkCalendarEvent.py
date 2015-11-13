@@ -7,6 +7,14 @@ import apiclient.discovery
 import oauth2client.client
 import datetime
 import time
+import os
+import re
+
+def getTimeZoneName():
+    tzlink = os.readlink('/etc/localtime')
+    pattern = '^/usr/share/zoneinfo/(.*)$'
+    match = re.search(pattern, tzlink)
+    return(match.group(1))
 
 def getTimeZoneOffSet():
     if time.localtime().tm_isdst:
@@ -29,22 +37,31 @@ def get_calendar_service(tokenFile):
     credentials.authorize(http)
     return(apiclient.discovery.build('calendar', 'v3', http=http))
 
+def recurrence_string_to_recurrence_rule(recurrence):
+    s = 'RRULE:FREQ={}'.format(recurrence.upper())
+    print(s)
+    return(['RRULE:FREQ={}'.format(recurrence.upper())])
+
 def attendees_string_to_list_of_dictionaries(attendees):
     list = []
     for attendee in attendees.split(','):
         list.append( { 'email': attendee } )
     return(list)
 
-def make_event(calendar_service, name, start, end, attendees=None, notifications=False, verbose=False):
+def make_event(calendar_service, name, start, end, recurrence=None, attendees=None, notifications=False, verbose=False):
     event = {
         'summary': name,
         'start': {
-            'dateTime': startTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet()
+            'dateTime': startTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet(),
+            'timeZone': getTimeZonename()
             },
         'end': {
-            'dateTime': endTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet()
+            'dateTime': endTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet(),
+            'timeZone': getTimeZonename()
             }
         }
+    if recurrence:
+        event['recurrence'] = recurrence_string_to_recurrence_rule(recurrence)
     if attendees:
         event['attendees'] = attendees_string_to_list_of_dictionaries(attendees)
     if notifications:
@@ -66,7 +83,10 @@ if '__main__' == __name__:
     omega.add_argument('-d', '--duration', default='30', help='duration of the event in minutes')
     parser.add_argument('-a', '--attendees', help='comma separated list of additional attendee email addresses')
     parser.add_argument('-n', '--notifications', action='store_true', help='send a notification 10 minutes before the event')
+    parser.add_argument('-r', '--recurrence', choices=['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly'], help='make a recurring event')
     args = parser.parse_args()
+    print(getTimeZoneName())
+    sys.exit(0)
     calendar_service = get_calendar_service(args.tokenFile)
     if args.start:
         startTime = datetime.datetime.strptime(args.start, '%Y-%m-%dT%H:%M:%S')
@@ -78,4 +98,4 @@ if '__main__' == __name__:
     else:
         endTime = startTime + datetime.timedelta(minutes=int(args.duration))
     if args.verbose: print('end time: {} type:{}'.format(endTime, type(endTime)))
-    print(make_event(calendar_service, args.name, startTime, endTime, attendees=args.attendees, notifications=args.notifications, verbose=args.verbose))
+    print(make_event(calendar_service, args.name, startTime, endTime, recurrence=args.recurrence, attendees=args.attendees, notifications=args.notifications, verbose=args.verbose))
