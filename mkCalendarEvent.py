@@ -39,7 +39,6 @@ def get_calendar_service(tokenFile):
 
 def recurrence_string_to_recurrence_rule(recurrence):
     s = 'RRULE:FREQ={}'.format(recurrence.upper())
-    print(s)
     return(['RRULE:FREQ={}'.format(recurrence.upper())])
 
 def attendees_string_to_list_of_dictionaries(attendees):
@@ -53,11 +52,11 @@ def make_event(calendar_service, name, start, end, recurrence=None, attendees=No
         'summary': name,
         'start': {
             'dateTime': startTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet(),
-            'timeZone': getTimeZonename()
+            'timeZone': getTimeZoneName()
             },
         'end': {
             'dateTime': endTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet(),
-            'timeZone': getTimeZonename()
+            'timeZone': getTimeZoneName()
             }
         }
     if recurrence:
@@ -86,7 +85,6 @@ if '__main__' == __name__:
     parser.add_argument('-r', '--recurrence', choices=['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly'], help='make a recurring event')
     args = parser.parse_args()
     print(getTimeZoneName())
-    sys.exit(0)
     calendar_service = get_calendar_service(args.tokenFile)
     if args.start:
         startTime = datetime.datetime.strptime(args.start, '%Y-%m-%dT%H:%M:%S')
