@@ -84,7 +84,6 @@ if '__main__' == __name__:
     parser.add_argument('-n', '--notifications', action='store_true', help='send a notification 10 minutes before the event')
     parser.add_argument('-r', '--recurrence', choices=['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly'], help='make a recurring event')
     args = parser.parse_args()
-    print(getTimeZoneName())
     calendar_service = get_calendar_service(args.tokenFile)
     if args.start:
         startTime = datetime.datetime.strptime(args.start, '%Y-%m-%dT%H:%M:%S')
