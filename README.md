@@ -12,6 +12,8 @@ https://developers.google.com/google-apps/calendar/v3/reference/
 
 https://developers.google.com/google-apps/calendar/v3/reference/events/insert
 
+https://tools.ietf.org/html/rfc2445
+
 Sample Invocations
 ------------------
 `./mkCalendarEvent.py "ring in the new millennium" --start 1999-12-31T23:00:00 --token token.json -v`
