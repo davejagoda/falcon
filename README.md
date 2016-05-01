@@ -33,3 +33,7 @@ Sample Invocations
 ------------------
 
 `./mkCalendarEvent.py "ring in the new millennium" --start 1999-12-31T23:00:00 --token token.json -v`
+
+If you set up a Procfile with a reference to the right token, you can do this:
+
+`honcho start`
