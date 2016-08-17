@@ -2,40 +2,8 @@
 
 import argparse
 import pprint
-import httplib2
-import apiclient.discovery
-import oauth2client.client
 import datetime
-import time
-import os
-import re
-
-def getTimeZoneName():
-    tzlink = os.readlink('/etc/localtime')
-    pattern = '^/usr/share/zoneinfo/(.*)$'
-    match = re.search(pattern, tzlink)
-    return(match.group(1))
-
-def getTimeZoneOffSet():
-    if time.localtime().tm_isdst:
-        tzoffset = time.altzone
-    else:
-        tzoffset = time.timezone
-    hh = tzoffset / -3600
-    mm = tzoffset % 60
-    if hh < 0:
-        sign = '-'
-        hh *= -1
-    else:
-        sign = '+'
-    return('{}{:02d}:{:02d}'.format(sign,hh,mm))
-
-def get_calendar_service(tokenFile):
-    with open(tokenFile, 'r') as f:
-        credentials = oauth2client.client.Credentials.new_from_json(f.read())
-    http = httplib2.Http()
-    credentials.authorize(http)
-    return(apiclient.discovery.build('calendar', 'v3', http=http))
+import utils
 
 def recurrence_string_to_recurrence_rule(recurrence):
     s = 'RRULE:FREQ={}'.format(recurrence.upper())
@@ -51,12 +19,12 @@ def make_event(calendar_service, name, start, end, recurrence=None, attendees=No
     event = {
         'summary': name,
         'start': {
-            'dateTime': startTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet(),
-            'timeZone': getTimeZoneName()
+            'dateTime': startTime.replace(microsecond=0).isoformat() + utils.getTimeZoneOffSet(),
+            'timeZone': utils.getTimeZoneName()
             },
         'end': {
-            'dateTime': endTime.replace(microsecond=0).isoformat()+getTimeZoneOffSet(),
-            'timeZone': getTimeZoneName()
+            'dateTime': endTime.replace(microsecond=0).isoformat() + utils.getTimeZoneOffSet(),
+            'timeZone': utils.getTimeZoneName()
             }
         }
     if recurrence:
@@ -84,7 +52,7 @@ if '__main__' == __name__:
     parser.add_argument('-n', '--notifications', action='store_true', help='send a notification 10 minutes before the event')
     parser.add_argument('-r', '--recurrence', choices=['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly'], help='make a recurring event')
     args = parser.parse_args()
-    calendar_service = get_calendar_service(args.tokenFile)
+    calendar_service = utils.get_calendar_service(args.tokenFile)
     if args.start:
         startTime = datetime.datetime.strptime(args.start, '%Y-%m-%dT%H:%M:%S')
     else:

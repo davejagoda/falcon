@@ -2,27 +2,17 @@
 
 import argparse
 import pprint
-import httplib2
-import apiclient.discovery
-import oauth2client.client
-from mkCalendarEvent import getTimeZoneOffSet
-
-def get_calendar_service(tokenFile):
-    with open(tokenFile, 'r') as f:
-        credentials = oauth2client.client.Credentials.new_from_json(f.read())
-    http = httplib2.Http()
-    credentials.authorize(http)
-    return(apiclient.discovery.build('calendar', 'v3', http=http))
+import utils
 
 def get_raw_result(calendar_service, timeMin=None, timeMax=None, verbose=False):
     if timeMin:
         if 3 == len(timeMin.split('-')):
             # a timezone offset was not provided
-            timeMin += getTimeZoneOffSet()
+            timeMin += utils.getTimeZoneOffSet()
     if timeMax:
         if 3 == len(timeMax.split('-')):
             # a timezone offset was not provided
-            timeMax += getTimeZoneOffSet()
+            timeMax += utils.getTimeZoneOffSet()
     result = []
     page_token = None
     while True:
@@ -71,7 +61,7 @@ if '__main__' == __name__:
     parser.add_argument('-n', '--timeMin', help='filter by min time e.g. 1999-12-31T00:00:00 or 1999-12-31T00:00:00-07:00')
     parser.add_argument('-x', '--timeMax', help='filter by max time e.g. 2000-01-01T23:59:59 or 2000-01-01T23:59:59-07:00')
     args = parser.parse_args()
-    calendar_service = get_calendar_service(args.tokenFile)
+    calendar_service = utils.get_calendar_service(args.tokenFile)
     result = get_raw_result(calendar_service, args.timeMin, args.timeMax, verbose=args.verbose)
     if (args.raw):
         print_raw_result(result)
