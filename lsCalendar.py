@@ -46,7 +46,10 @@ def print_names_only(result):
         if 'start' in item:
             startDict = item['start']
         else:
-            startDict = item['originalStartTime']
+            try:
+                startDict = item['originalStartTime']
+            except:
+                print('exception:{}'.format(item))
         if 'dateTime' in startDict:
             dateTime = startDict['dateTime']
         else:
