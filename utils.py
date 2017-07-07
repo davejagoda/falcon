@@ -33,3 +33,12 @@ def getTimeZoneOffSet():
     else:
         sign = '+'
     return('{}{:02d}:{:02d}'.format(sign,hh,mm))
+
+def toRFC3339(date_str):
+    if 'T' not in date_str:
+        # if there's no T, you have just a date
+        date_str += 'T00:00:00'
+    if 3 == len(date_str.split('-')):
+        # a timezone offset was not provided
+        date_str += getTimeZoneOffSet()
+    return(date_str)
