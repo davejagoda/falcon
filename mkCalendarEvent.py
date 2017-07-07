@@ -22,12 +22,14 @@ def make_event(calendar_service, name, startTime, endTime, allDay=False,
         'summary': name
     }
     if allDay:
+        endTime = startTime + datetime.timedelta(days=1)
         event['start'] = {
             'date': startTime.strftime('%Y-%m-%d')
         }
         event['end'] = {
-            'date': startTime.strftime('%Y-%m-%d')
+            'date': endTime.strftime('%Y-%m-%d')
         }
+        event['transparency'] = 'transparent'
     else:
         event['start'] = {
             'dateTime': startTime.replace(microsecond=0).isoformat() + utils.getTimeZoneOffSet(),
