@@ -15,17 +15,27 @@ def attendees_string_to_list_of_dictionaries(attendees):
         list.append( { 'email': attendee } )
     return(list)
 
-def make_event(calendar_service, name, start, end, recurrence=None, attendees=None, notifications=False, verbose=False):
+def make_event(calendar_service, name, startTime, endTime, allDay=False,
+               recurrence=None, attendees=None, notifications=False,
+               verbose=False):
     event = {
-        'summary': name,
-        'start': {
+        'summary': name
+    }
+    if allDay:
+        event['start'] = {
+            'date': startTime.strftime('%Y-%m-%d')
+        }
+        event['end'] = {
+            'date': startTime.strftime('%Y-%m-%d')
+        }
+    else:
+        event['start'] = {
             'dateTime': startTime.replace(microsecond=0).isoformat() + utils.getTimeZoneOffSet(),
             'timeZone': utils.getTimeZoneName()
-            },
-        'end': {
+        }
+        event['end'] = {
             'dateTime': endTime.replace(microsecond=0).isoformat() + utils.getTimeZoneOffSet(),
             'timeZone': utils.getTimeZoneName()
-            }
         }
     if recurrence:
         event['recurrence'] = recurrence_string_to_recurrence_rule(recurrence)
@@ -53,8 +63,14 @@ if '__main__' == __name__:
     parser.add_argument('-r', '--recurrence', choices=['secondly', 'minutely', 'hourly', 'daily', 'weekly', 'monthly', 'yearly'], help='make a recurring event')
     args = parser.parse_args()
     calendar_service = utils.get_calendar_service(args.tokenFile)
+    allDay = False
     if args.start:
-        startTime = datetime.datetime.strptime(args.start, '%Y-%m-%dT%H:%M:%S')
+        if 'T' in args.start:
+            startTime = datetime.datetime.strptime(args.start, '%Y-%m-%dT%H:%M:%S')
+        else:
+            # add all day events if the start date has no time stamp
+            allDay = True
+            startTime = datetime.datetime.strptime(args.start, '%Y-%m-%d')
     else:
         startTime = datetime.datetime.now() + datetime.timedelta(minutes=int(args.minutes))
     if args.verbose: print('start time: {} type:{}'.format(startTime, type(startTime)))
@@ -63,4 +79,6 @@ if '__main__' == __name__:
     else:
         endTime = startTime + datetime.timedelta(minutes=int(args.duration))
     if args.verbose: print('end time: {} type:{}'.format(endTime, type(endTime)))
-    print(make_event(calendar_service, args.name, startTime, endTime, recurrence=args.recurrence, attendees=args.attendees, notifications=args.notifications, verbose=args.verbose))
+    print(make_event(calendar_service, args.name, startTime, endTime, allDay,
+                     recurrence=args.recurrence, attendees=args.attendees,
+                     notifications=args.notifications, verbose=args.verbose))
