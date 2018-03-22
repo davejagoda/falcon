@@ -25,7 +25,7 @@ def getTimeZoneOffSet():
         tzoffset = time.altzone
     else:
         tzoffset = time.timezone
-    hh = tzoffset / -3600
+    hh = int(tzoffset / -3600)
     mm = tzoffset % 60
     if hh < 0:
         sign = '-'

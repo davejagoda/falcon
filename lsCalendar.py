@@ -2,6 +2,7 @@
 
 import argparse
 import pprint
+import sys
 import utils
 
 def get_raw_result(calendar_service, timeMin=None, timeMax=None, verbose=False):
@@ -49,8 +50,12 @@ def print_names_only(result):
             summary = 'NO SUMMARY'
         names.append(dateTime + summary)
     names.sort()
-    for name in names:
-        print(name.encode('utf8'))
+    if sys.version_info[0] == 2:
+        for name in names:
+            print(name.encode('utf8'))
+    else:
+        for name in names:
+            print(name)
 
 if '__main__' == __name__:
     parser = argparse.ArgumentParser()
