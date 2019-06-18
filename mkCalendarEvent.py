@@ -31,13 +31,15 @@ def make_event(calendar_service, name, startTime, endTime, allDay=False,
         }
         event['transparency'] = 'transparent'
     else:
+        tzOffSet = utils.getTimeZoneOffSet()
+        tzName = utils.getTimeZoneName()
         event['start'] = {
-            'dateTime': startTime.replace(microsecond=0).isoformat() + utils.getTimeZoneOffSet(),
-            'timeZone': utils.getTimeZoneName()
+            'dateTime': startTime.replace(microsecond=0).isoformat() + tzOffSet,
+            'timeZone': tzName
         }
         event['end'] = {
-            'dateTime': endTime.replace(microsecond=0).isoformat() + utils.getTimeZoneOffSet(),
-            'timeZone': utils.getTimeZoneName()
+            'dateTime': endTime.replace(microsecond=0).isoformat() + tzOffSet,
+            'timeZone': tzName
         }
     if recurrence:
         event['recurrence'] = recurrence_string_to_recurrence_rule(recurrence)

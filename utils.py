@@ -14,11 +14,20 @@ def get_calendar_service(tokenFile):
     credentials.authorize(http)
     return(apiclient.discovery.build('calendar', 'v3', http=http))
 
-def getTimeZoneName():
+def getTimeZoneName(verbose=0):
     tzlink = os.readlink('/etc/localtime')
-    pattern = '^/usr/share/zoneinfo/(.*)$'
-    match = re.search(pattern, tzlink)
-    return(match.group(1))
+    for pattern in [
+            '^/usr/share/zoneinfo/(.*)$',
+            '^/var/db/timezone/zoneinfo/(.*)$'
+    ]:
+        match = re.search(pattern, tzlink)
+        if match:
+            if verbose > 0:
+                print('matched:{}'.format(pattern))
+            return(match.group(1))
+        else:
+            if verbose > 0:
+                print('failed to match pattern:{}'.format(pattern))
 
 def getTimeZoneOffSet():
     if time.localtime().tm_isdst:
