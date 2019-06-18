@@ -14,7 +14,7 @@ def get_calendar_service(tokenFile):
     credentials.authorize(http)
     return(apiclient.discovery.build('calendar', 'v3', http=http))
 
-def getTimeZoneName(verbose=0):
+def getTimeZoneName(verbose):
     tzlink = os.readlink('/etc/localtime')
     for pattern in [
             '^/usr/share/zoneinfo/(.*)$',
@@ -22,11 +22,11 @@ def getTimeZoneName(verbose=0):
     ]:
         match = re.search(pattern, tzlink)
         if match:
-            if verbose > 0:
+            if verbose:
                 print('matched:{}'.format(pattern))
             return(match.group(1))
         else:
-            if verbose > 0:
+            if verbose:
                 print('failed to match pattern:{}'.format(pattern))
 
 def getTimeZoneOffSet():

@@ -32,7 +32,7 @@ def make_event(calendar_service, name, startTime, endTime, allDay=False,
         event['transparency'] = 'transparent'
     else:
         tzOffSet = utils.getTimeZoneOffSet()
-        tzName = utils.getTimeZoneName()
+        tzName = utils.getTimeZoneName(verbose)
         event['start'] = {
             'dateTime': startTime.replace(microsecond=0).isoformat() + tzOffSet,
             'timeZone': tzName
